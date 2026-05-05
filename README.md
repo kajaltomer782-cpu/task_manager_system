@@ -19,6 +19,8 @@
 - 📊 **Smart Dashboard**: Personalized statistics (Tasks, Projects, Completion Rates) based on user roles.
 - 📱 **Fully Responsive**: Optimized for Desktop, Tablet, and Mobile devices with a premium "Glassmorphism" UI.
 - 🔄 **Real-time Feel**: Manual refresh functionality to keep task lists synced without full page reloads.
+- 🔍 **Advanced Task Filtering**: Filter tasks by **Status** (To-Do, In Progress, Done) and **Priority** (High, Medium, Low) for better focus.
+- 🔄 **Smart Sorting**: Instantly sort tasks by **Latest Created** or **Priority** (High → Low, Low → High) to manage urgency effectively.
 
 ---
 

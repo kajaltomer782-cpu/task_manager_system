@@ -46,10 +46,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Title and Project ID are required" }, { status: 400 });
   }
 
-  // RBAC: Only Admin or Project Owner can create tasks
-  const project = await prisma.project.findUnique({ where: { id: projectId } });
-  if (!project || (project.ownerId !== (session.user as any).id && (session.user as any).role !== "ADMIN")) {
-    return NextResponse.json({ error: "Unauthorized to create tasks in this project" }, { status: 403 });
+  // RBAC: Only Admin can create tasks
+  if ((session.user as any).role !== "ADMIN") {
+    return NextResponse.json({ error: "Unauthorized: Only admins can create tasks" }, { status: 403 });
   }
 
   const task = await prisma.task.create({
