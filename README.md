@@ -51,6 +51,7 @@ npm install
 ### 3. Environment Setup
 Create a `.env` file in the root directory and add:
 ```env
+
 DATABASE_URL="file:./dev.db"
 NEXTAUTH_SECRET="your_random_secret_string"
 NEXTAUTH_URL="http://localhost:3000"
