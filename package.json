@@ -1,6 +1,7 @@
 {
   "name": "task_manager",
-  "version": "0.1.0",
+  "description": "Premium Task Management System",
+  "version": "0.1.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
