@@ -39,7 +39,7 @@
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/taskflow.git
+git clone https://github.com/kajaltomer782-cpu/task_manager_system.git
 cd taskflow
 ```
 
@@ -91,5 +91,8 @@ This project is optimized for deployment on **Railway** or **Vercel**:
 3. Use `npx prisma generate && npx prisma migrate deploy && next build` as the build command.
 
 ---
+## 👤 Author
+Kajal Tomer  
+B.Tech CSE (AI & ML)
 
 
