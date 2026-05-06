@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { useSession } from "next-auth/react";
 import { 
@@ -20,6 +20,11 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [projects, setProjects] = useState([]);
+  
+  // Filter & Sort State
+  const [filterStatus, setFilterStatus] = useState("ALL");
+  const [filterPriority, setFilterPriority] = useState("ALL");
+  const [sortBy, setSortBy] = useState("NEWEST");
   
   // Form State
   const [title, setTitle] = useState("");
@@ -98,6 +103,38 @@ export default function TasksPage() {
 
   const isAdmin = (session?.user as any)?.role === "ADMIN";
 
+  const filteredAndSortedTasks = useMemo(() => {
+    let result = [...tasks];
+
+    // Filter by Status
+    if (filterStatus !== "ALL") {
+      result = result.filter((t: any) => t.status === filterStatus);
+    }
+
+    // Filter by Priority
+    if (filterPriority !== "ALL") {
+      result = result.filter((t: any) => t.priority === filterPriority);
+    }
+
+    // Sort
+    result.sort((a: any, b: any) => {
+      if (sortBy === "NEWEST") {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+      if (sortBy === "PRIORITY_DESC") {
+        const priorityMap: any = { HIGH: 3, MEDIUM: 2, LOW: 1 };
+        return priorityMap[b.priority] - priorityMap[a.priority];
+      }
+      if (sortBy === "PRIORITY_ASC") {
+        const priorityMap: any = { HIGH: 3, MEDIUM: 2, LOW: 1 };
+        return priorityMap[a.priority] - priorityMap[b.priority];
+      }
+      return 0;
+    });
+
+    return result;
+  }, [tasks, filterStatus, filterPriority, sortBy]);
+
   const getStatusBadge = (s: string) => {
     switch(s) {
       case "DONE": return <span className="badge badge-done">Done</span>;
@@ -127,12 +164,68 @@ export default function TasksPage() {
           </div>
         </header>
 
+        <div className="flex flex-wrap gap-4 items-center" style={{ marginBottom: '1.5rem', background: 'var(--secondary)', padding: '1rem', borderRadius: '0.75rem', border: '1px solid var(--border)' }}>
+          <div className="flex items-center gap-2">
+            <Filter size={16} style={{ color: 'var(--muted)' }} />
+            <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>Filter:</span>
+          </div>
+          <select 
+            value={filterStatus} 
+            onChange={(e) => setFilterStatus(e.target.value)}
+            style={{ width: 'auto', padding: '0.4rem 2rem 0.4rem 0.8rem' }}
+          >
+            <option value="ALL">All Status</option>
+            <option value="TODO">To Do</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="DONE">Done</option>
+          </select>
+          <select 
+            value={filterPriority} 
+            onChange={(e) => setFilterPriority(e.target.value)}
+            style={{ width: 'auto', padding: '0.4rem 2rem 0.4rem 0.8rem' }}
+          >
+            <option value="ALL">All Priority</option>
+            <option value="HIGH">High</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="LOW">Low</option>
+          </select>
+          <div className="flex-grow"></div>
+          <div className="flex items-center gap-2">
+            <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>Sort by:</span>
+            <select 
+              value={sortBy} 
+              onChange={(e) => setSortBy(e.target.value)}
+              style={{ width: 'auto', padding: '0.4rem 2rem 0.4rem 0.8rem' }}
+            >
+              <option value="NEWEST">Latest Created</option>
+              <option value="PRIORITY_DESC">Priority: High → Low</option>
+              <option value="PRIORITY_ASC">Priority: Low → High</option>
+            </select>
+          </div>
+        </div>
+
         {loading ? (
           <p>Loading tasks...</p>
         ) : tasks.length === 0 ? (
           <div className="card" style={{ textAlign: 'center', padding: '4rem' }}>
             <CheckCircle2 size={48} style={{ color: 'var(--muted)', marginBottom: '1rem' }} />
             <p style={{ color: 'var(--muted)' }}>No tasks found. Create one to get started!</p>
+          </div>
+        ) : filteredAndSortedTasks.length === 0 ? (
+          <div className="card" style={{ textAlign: 'center', padding: '4rem' }}>
+            <Filter size={48} style={{ color: 'var(--muted)', marginBottom: '1rem' }} />
+            <p style={{ color: 'var(--muted)' }}>No tasks match your current filters.</p>
+            <button 
+              className="btn-outline" 
+              style={{ marginTop: '1rem' }}
+              onClick={() => {
+                setFilterStatus("ALL");
+                setFilterPriority("ALL");
+                setSortBy("NEWEST");
+              }}
+            >
+              Clear All Filters
+            </button>
           </div>
         ) : (
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
@@ -147,7 +240,7 @@ export default function TasksPage() {
                 </tr>
               </thead>
               <tbody>
-                {tasks.map((task: any) => (
+                {filteredAndSortedTasks.map((task: any) => (
                   <tr key={task.id} style={{ borderBottom: '1px solid var(--border)' }}>
                     <td style={{ padding: '1rem' }}>
                       <div style={{ fontWeight: 600 }}>{task.title}</div>
